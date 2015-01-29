@@ -1,0 +1,11 @@
+--- !ruby/object:Hangman::Game
+mistakes_left: 1
+board: !ruby/object:Hangman::Board
+  word: unwashed
+  alphabet:
+    a: a
+    o: o
+    i: i
+    e: e
+    u: u
+    s: s

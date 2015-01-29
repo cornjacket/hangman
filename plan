@@ -1,0 +1,96 @@
+First look
+--------------------------------------------------
+What needs to happen?
+
+  Game controls
+    game_over
+    asking Board if match
+    keeps track of strikes
+
+  Board controls
+    recording alphabet choices
+
+
+
+Methods
+---------------------------------------------------
+
+
+Board class
+--------------------------------------------------------
+  ##selects random word from file (internal array first)
+  initialize(options_hash turns)
+    # select word for game
+    @word = fetch(word, random_from_file_with_constraints)
+
+    # keep track of letters already chosen
+    alphabet = Hash.new(0)
+    
+
+
+  alphabet=(char) - public
+    submits new char to hangman for processing
+    causes turns to decrement
+    updates alphabet hash
+
+  match - private method
+    returns
+
+  display_string
+    returns string that shows/hides appropriate characters based on current state of game
+ 
+  manages data structures, keeps track of turns, comparison
+
+
+Game class
+--------------------------
+  takes care of user input
+  game loop
+
+  initialize
+  # set number of strikes - taken as input to new
+    @strikes_left = fetch(strikes_left,3)
+
+  game_over - public
+    returns win/lose/and false depending on match and strikes_left == 0  
+
+
+walk thru for user (basic)
+  game selects new word
+  while game is not over
+    display current status/message to player
+    get input from player 
+    submit input to hangman which updates data structs
+  display win/lose message
+
+
+
+-----------------------------------------------------
+Persistence
+
+Which classes need to be saved?
+Game and Referee
+
+How do I break back into a game?
+Load up data structures at the beginning of a new game if requested.
+
+
+YAML stuff has to be outside of Game class inorder to work right. 
+
+
+Problem:
+I don't think that YAML can support my hash datastructures default values. So then how can a hash be supported in YAML if the default can not be maintained.
+
+Solution:
+So it turns out that I can merge hashes together. This means that I need to use the default hash method that I already use and then go ahead and merge the save values of the hash. This works but the problem with this method is that I can't assign the results of the YAML#dump method back to game. Instead I need to piece together all the default values. This makes using default values for hashes problematic when trying to save state in between program runs.
+
+The problem with the merging is that I must pass the save_hash into the constructor of the board class, which also gets passed in to the Game constructor. Seems like to much implementation exposure to the outside. I don't like this implementation. Need to change implementation from hash to an array implementation. No defaults means no problems with recreating the hash. I saved my current game.rb and hangman.rb to game_hash.rb and hangman_hash.rb for future reference. The fact that I can't change the hash implementation solely inside of hangman.rb without changing game.rb shows this is not a successful implementation.
+
+Beware of hashes (especially when using YAML)
+--- disclaimer that new to ruby and ruby(perl)-like hashes. hash to me is an array of link lists with an associated hashing function.
+--- with the ease of making and power of using hashes to simplify my code I have become somewhat hash-happy attempting to solve any problems with a hash. One such experience was an implementation of hangman that used a hash to map letters to themselves, ie. 'a' -> 'a'. Letters not in the hash were resolved with the hash default which returned the '-' character. This allowed me to submit new characters by the user into the hash. Prior to displaying the word to the user, each letter was iterated and mapped through the hash. Letters in the word but not in the hash resulted in '-' so the user could not see the actual letter. Simple, easy, and elegant. That is until I needed to save the game in mid-play.
+
+Solution was to NOT depend on the default value returned by the hash. Instead, depend on the default value being nil and then
+acting accordingly. It is not the most elegant solution, but it worked.
+
+This could be an interesting topic to discuss on a blog.
